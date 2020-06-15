@@ -15,9 +15,11 @@ def get_or_create_queue(name):
         return sqs.create_queue(QueueName=queue_name)
 
 
-def add(data):
+def add(identity, properties):
     # Add the data packet to the correct SQS queue
     queue = get_or_create_queue('heap')
+    data = {'identity': identity,
+            'properties': properties}
     queue.send_message(MessageBody=json.dumps(data))
 
 
