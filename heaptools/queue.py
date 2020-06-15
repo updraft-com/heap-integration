@@ -2,6 +2,19 @@ import boto3
 import os
 import json
 from botocore import errorfactory
+from datetime import datetime, date
+from decimal import Decimal
+
+
+class JsonFormatEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        if isinstance(obj, date):
+            return obj.isoformat()
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return json.JSONEncoder.default(self, obj)
 
 
 def get_or_create_queue(name):
@@ -20,7 +33,7 @@ def add(identity, properties):
     queue = get_or_create_queue('heap')
     data = {'identity': identity,
             'properties': properties}
-    queue.send_message(MessageBody=json.dumps(data))
+    queue.send_message(MessageBody=json.dumps(data, cls=JsonFormatEncoder))
 
 
 def process(id):
