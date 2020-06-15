@@ -4,7 +4,7 @@ import json
 from botocore import errorfactory
 from datetime import datetime, date
 from decimal import Decimal
-
+from heaptools.client import HeapAPIClient
 
 class JsonFormatEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -38,6 +38,7 @@ def add(identity, properties):
 
 def process(id):
     queue = get_or_create_queue('heap')
+    client = HeapAPIClient(id)
     m = {}
     for i in range(0, 10):
         messages = queue.receive_messages(MaxNumberOfMessages=10, WaitTimeSeconds=1)
@@ -47,9 +48,10 @@ def process(id):
             m[message.message_id] = message
         if not count:
             break
-    data = [v.body for k, v in m.items()]
-    for d in data:
-        print('---------')
-        print(d)
-    for k, v in m.items():
-        v.delete()
+    data = [json.loads(v.body) for k, v in m.items()]
+    r = client.bulk_add_user_properties(data)
+    if r.status_code == 200:
+        for k, v in m.items():
+            v.delete()
+    else:
+        print("HEAP Error", r.status_code, r.content)

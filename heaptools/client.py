@@ -1,6 +1,7 @@
 import json
 import requests
 
+
 class HeapAPIClient():
     def __init__(self, app_id):
         """
@@ -38,7 +39,7 @@ class HeapAPIClient():
         if properties is not None:
             data["properties"] = properties
 
-        requests.post(self.base_url + '/track', data=json.dumps(data), headers={'Content-Type': 'application/json'})
+        return requests.post(self.base_url + '/track', data=json.dumps(data), headers={'Content-Type': 'application/json'})
 
     def add_user_properties(self, identity=None, properties=None):
         """
@@ -60,5 +61,22 @@ class HeapAPIClient():
         if properties is not None:
             data["properties"] = properties
 
-        requests.post(self.base_url + '/add_user_properties', data=json.dumps(data),
-                      headers={'Content-Type': 'application/json'})
+        return requests.post(self.base_url + '/add_user_properties', data=json.dumps(data),
+                             headers={'Content-Type': 'application/json'})
+
+    def bulk_add_user_properties(self, bulk):
+        """
+        Post a "add_user_properties" event to the Heap Analytics API server
+        :param identity: user identity
+        :type identity: str
+        :param properties: optional, additional properties to associate with the user
+        :type properties: dict
+        """
+
+        data = {
+            "app_id": self.app_id,
+            "users": bulk,
+        }
+
+        return requests.post(self.base_url + '/add_user_properties', data=json.dumps(data),
+                             headers={'Content-Type': 'application/json'})
