@@ -11,7 +11,7 @@ class HeapAPIClient():
         """
 
         self.base_url = "https://heapanalytics.com/api"
-        self.app_id = app_id
+        self.app_id = str(app_id)
 
         if app_id is None:
             raise RuntimeError("app_id must be valid!")
