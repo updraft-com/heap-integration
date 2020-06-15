@@ -40,11 +40,13 @@ def process(id):
     queue = get_or_create_queue('heap')
     client = HeapAPIClient(id)
     m = {}
+    total_count = 0
     for i in range(0, 10):
         messages = queue.receive_messages(MaxNumberOfMessages=10, WaitTimeSeconds=1)
         count = 0
         for message in messages:
             count += 1
+            total_count += 1
             m[message.message_id] = message
         if not count:
             break
@@ -55,3 +57,4 @@ def process(id):
             v.delete()
     else:
         print("HEAP Error", r.status_code, r.content)
+    return total_count
